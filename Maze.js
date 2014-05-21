@@ -3,8 +3,14 @@ var deltaY = 0;
 var walls = [];
 var player = 0;
 var maze = 0;
+var enemy = 0;
 var history = [];
 createLevel();
+
+var tempCanvas = document.createElement('canvas');
+tempCanvas.width = 640;
+tempCanvas.height = 480;
+var tempContext = tempCanvas.getContext('2d');
 
 
 function createLevel() {
@@ -97,6 +103,10 @@ function createLevel() {
 	var playerY = FromY + Math.floor(startPoint / horizontalSize) * gridSize + Math.floor(gridSize/2);
 	var playerX = FromX + (startPoint % horizontalSize) * gridSize + Math.floor(gridSize/2);
 	player = {x: playerX, y: playerY, gotoX: playerX, gotoY: playerY};
+	startPoint = Math.round( randomBetween(0, horizontalSize * verticalSize) );
+	var enemyY = FromY + Math.floor(startPoint / horizontalSize) * gridSize + Math.floor(gridSize/2);
+	var enemyX = FromX + (startPoint % horizontalSize) * gridSize + Math.floor(gridSize/2);
+	enemy = {x: enemyX, y: enemyY, gotoX: enemyX, gotoY: enemyY};
 }
 
 function listContains(list, value){
@@ -147,10 +157,13 @@ function render () {
 	//for ( var k = 0; k < walls.length; k++ ) {
 	//	fillBox(FromX + (history[k] % 20)*25 + Math.round( randomBetween(-5, 5)) + 12, FromY + Math.floor(history[k] / 20)*25 + Math.round( randomBetween(-5, 5)) + 12, 5,5, "rgba(32, 45, 21, " + k/walls.length + ")");
 	//}
-	for ( var j = 0; j < walls.length; j++ ) {
-		//drawShadow(player.x, player.y, walls[j].x1, walls[j].y1, walls[j].x2, walls[j].y2);
-	}
+	//for ( var j = 0; j < walls.length; j++ ) {
+	//	drawShadow(player.x, player.y, walls[j].x1, walls[j].y1, walls[j].x2, walls[j].y2);
+	//}
+	drawCircleView([player, enemy], 2, 50);
+	
 	//fillBox(FromX-10, FromY-10, 20,20, "green");
+	fillBox(enemy.x-4, enemy.y-4, 8,8, "red");
 	fillBox(player.gotoX-4, player.gotoY-4, 8,8, "lightblue");
 	fillBox(player.x-4, player.y-4, 8,8, "blue");
 	/* 
@@ -161,6 +174,23 @@ function render () {
 	writeText (text,x,y,color);
 	drawLine (x1,y1,x2,y2,color);
 	*/ 
+}
+
+function drawCircleView(entities,length, radius){
+    tempContext.globalCompositeOperation="source-over";
+    for (i = 0;i<length;i++){
+        tempContext.beginPath();
+        tempContext.fillStyle = "black";
+	    tempContext.arc(entities[i].x,entities[i].y,radius,0,2*Math.PI);
+	    tempContext.fill();
+    }
+    tempContext.globalCompositeOperation="xor";
+    tempContext.beginPath();
+    tempContext.fillStyle = "lightgrey";
+    tempContext.fillRect(0,0,640,480);
+    tempContext.fill(); 
+ 	context.drawImage(tempCanvas, 0, 0);
+ 	tempCanvas.width = tempCanvas.width;
 }
 
 function drawShadow(lightX, lightY, wallX1, wallY1, wallX2, wallY2) {
